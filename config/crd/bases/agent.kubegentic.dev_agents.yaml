@@ -1,0 +1,97 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.14.0
+  name: agents.agent.kubegentic.dev
+spec:
+  group: agent.kubegentic.dev
+  names:
+    kind: Agent
+    listKind: AgentList
+    plural: agents
+    singular: agent
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.model
+      name: Model
+      type: string
+    - jsonPath: .spec.provider
+      name: Provider
+      type: string
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .status.readyReplicas
+      name: Ready
+      type: integer
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: Agent is the Schema for the agents API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AgentSpec defines the desired state of Agent
+            properties:
+              model:
+                description: Model is the LLM model name to use (e.g. llama3.2, gpt-4o)
+                type: string
+              provider:
+                description: Provider is the LLM backend (ollama, openai, anthropic,
+                  vllm)
+                type: string
+              replicas:
+                description: Replicas is the number of agent pods to run (default
+                  1)
+                format: int32
+                type: integer
+              systemPrompt:
+                description: SystemPrompt is the system-level instruction given to
+                  the agent
+                type: string
+            required:
+            - model
+            - provider
+            - systemPrompt
+            type: object
+          status:
+            description: AgentStatus defines the observed state of Agent
+            properties:
+              lastReconciled:
+                description: LastReconciled is the timestamp of the last successful
+                  reconcile
+                format: date-time
+                type: string
+              phase:
+                description: 'Phase is the current lifecycle phase: Pending, Running,
+                  Failed'
+                type: string
+              readyReplicas:
+                description: ReadyReplicas is the number of pods currently ready
+                format: int32
+                type: integer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
