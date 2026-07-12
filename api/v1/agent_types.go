@@ -1,6 +1,7 @@
 package v1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -10,6 +11,7 @@ type AgentSpec struct {
 	Model string `json:"model"`
 
 	// Provider is the LLM backend (ollama, openai, anthropic, vllm)
+	// +kubebuilder:validation:Enum=ollama;openai;deepseek;groq
 	Provider string `json:"provider"`
 
 	// SystemPrompt is the system-level instruction given to the agent
@@ -18,6 +20,8 @@ type AgentSpec struct {
 	// Replicas is the number of agent pods to run (default 1)
 	// +optional
 	Replicas *int32 `json:"replicas,omitempty"`
+	// +optional
+	APIKeySecretRef *corev1.SecretKeySelector `json:"apiKeySecretRef,omitempty"`
 }
 
 // AgentStatus defines the observed state of Agent

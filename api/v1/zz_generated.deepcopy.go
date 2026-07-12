@@ -21,6 +21,7 @@ limitations under the License.
 package v1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -90,6 +91,11 @@ func (in *AgentSpec) DeepCopyInto(out *AgentSpec) {
 		in, out := &in.Replicas, &out.Replicas
 		*out = new(int32)
 		**out = **in
+	}
+	if in.APIKeySecretRef != nil {
+		in, out := &in.APIKeySecretRef, &out.APIKeySecretRef
+		*out = new(corev1.SecretKeySelector)
+		(*in).DeepCopyInto(*out)
 	}
 }
 

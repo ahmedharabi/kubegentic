@@ -4,12 +4,12 @@ kind: ClusterRole
 metadata:
   labels:
     app.kubernetes.io/name: clusterrole
-    app.kubernetes.io/instance: agent-editor-role
+    app.kubernetes.io/instance: agent.py-editor-role
     app.kubernetes.io/component: rbac
     app.kubernetes.io/created-by: kubegentic
     app.kubernetes.io/part-of: kubegentic
     app.kubernetes.io/managed-by: kustomize
-  name: agent-editor-role
+  name: agent.py-editor-role
 rules:
 - apiGroups:
   - agent.kubegentic.dev

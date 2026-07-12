@@ -86,6 +86,23 @@ func (r *AgentReconciler) reconcileDeployment(ctx context.Context, agent *agentv
 		replicas = *agent.Spec.Replicas
 	}
 
+	env := []corev1.EnvVar{
+		{Name: "AGENT_NAME", Value: agent.Name},
+		{Name: "AGENT_MODEL", Value: agent.Spec.Model},
+		{Name: "AGENT_PROVIDER", Value: agent.Spec.Provider},
+		{Name: "AGENT_SYSTEM_PROMPT", Value: agent.Spec.SystemPrompt},
+		{Name: "OLLAMA_BASE_URL", Value: "http://host.minikube.internal:11434"},
+	}
+
+	if agent.Spec.APIKeySecretRef != nil {
+		env = append(env, corev1.EnvVar{
+			Name: "LLM_API_KEY",
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: agent.Spec.APIKeySecretRef, // straight through, no translation
+			},
+		})
+	}
+
 	// Build the desired Deployment
 	desired := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -118,13 +135,8 @@ func (r *AgentReconciler) reconcileDeployment(ctx context.Context, agent *agentv
 								{ContainerPort: 8000},
 							},
 							// Inject agent config as environment variables
-							Env: []corev1.EnvVar{
-								{Name: "AGENT_NAME", Value: agent.Name},
-								{Name: "AGENT_MODEL", Value: agent.Spec.Model},
-								{Name: "AGENT_PROVIDER", Value: agent.Spec.Provider},
-								{Name: "AGENT_SYSTEM_PROMPT", Value: agent.Spec.SystemPrompt},
-								{Name: "OLLAMA_BASE_URL", Value: "http://host.minikube.internal:11434"},
-							},
+							Env: env,
+
 							// Readiness probe — Kubernetes won't send traffic until /health returns 200
 							ReadinessProbe: &corev1.Probe{
 								ProbeHandler: corev1.ProbeHandler{

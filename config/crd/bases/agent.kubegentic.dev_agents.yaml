@@ -52,12 +52,37 @@ spec:
           spec:
             description: AgentSpec defines the desired state of Agent
             properties:
+              apiKeySecretRef:
+                description: SecretKeySelector selects a key of a Secret.
+                properties:
+                  key:
+                    description: The key of the secret to select from.  Must be a
+                      valid secret key.
+                    type: string
+                  name:
+                    description: |-
+                      Name of the referent.
+                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?
+                    type: string
+                  optional:
+                    description: Specify whether the Secret or its key must be defined
+                    type: boolean
+                required:
+                - key
+                type: object
+                x-kubernetes-map-type: atomic
               model:
                 description: Model is the LLM model name to use (e.g. llama3.2, gpt-4o)
                 type: string
               provider:
                 description: Provider is the LLM backend (ollama, openai, anthropic,
                   vllm)
+                enum:
+                - ollama
+                - openai
+                - deepseek
+                - groq
                 type: string
               replicas:
                 description: Replicas is the number of agent pods to run (default

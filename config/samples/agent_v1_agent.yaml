@@ -2,11 +2,11 @@ apiVersion: agent.kubegentic.dev/v1
 kind: Agent
 metadata:
   labels:
-    app.kubernetes.io/name: agent
-    app.kubernetes.io/instance: agent-sample
+    app.kubernetes.io/name: agent.py
+    app.kubernetes.io/instance: agent.py-sample
     app.kubernetes.io/part-of: kubegentic
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: kubegentic
-  name: agent-sample
+  name: agent.py-sample
 spec:
   # TODO(user): Add fields here
