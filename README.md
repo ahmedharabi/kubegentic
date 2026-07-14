@@ -4,7 +4,7 @@
 
 **Kubernetes-native AI Agent Runtime Platform**
 
-Treat AI agents as first-class Kubernetes workloads &mdash; declarative, self-healing, observable, and scalable.
+Treat AI agents as first-class Kubernetes workloads -- declarative, self-healing, observable, and scalable.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go&logoColor=white)](https://golang.org/)
@@ -12,7 +12,7 @@ Treat AI agents as first-class Kubernetes workloads &mdash; declarative, self-he
 
 </div>
 
-Kubegentic lets you define and manage AI agents as Kubernetes custom resources. The operator watches Agent CRDs and reconciles the desired state &mdash; creating Deployments, Services, RBAC, and HPA automatically.
+Kubegentic lets you define and manage AI agents as Kubernetes custom resources. The operator watches Agent CRDs and reconciles the desired state, creating Deployments, Services, RBAC, and HPA automatically.
 
 > **Status:** Early development. The Kubernetes operator with Agent CRD reconciliation is implemented. Python agent runtime, tool servers, and Helm chart are on the roadmap.
 
@@ -20,23 +20,21 @@ Kubegentic lets you define and manage AI agents as Kubernetes custom resources. 
 
 ## Features
 
-- **Declarative YAML** &mdash; Define agents, tools, and memory in standard Kubernetes manifests
-- **Operator Pattern** &mdash; Self-healing reconciliation loop built with Kubebuilder
-- **Pluggable Interfaces** &mdash; ATI (tools), AMI (memory), ALI (LLMs), AWI (agents)
-- **Autoscaling** &mdash; Event-driven scaling via KEDA and HPA
-- **Observable** &mdash; OpenTelemetry traces, Prometheus metrics, structured logging
+- **Declarative YAML** : Define agents, tools, and memory in standard Kubernetes manifests
+- **Operator Pattern** : Self-healing reconciliation loop built with Kubebuilder
+- **Pluggable Interfaces** : ATI (tools), AMI (memory), ALI (LLMs), AWI (agents)
+- **Autoscaling** : Event-driven scaling via KEDA and HPA
+- **Observable** : OpenTelemetry traces, Prometheus metrics, structured logging
 
 ---
 
 ## Why Kubegentic?
 
-Running AI agents in production today is messy. You glue together infrastructure manually, duct-tape scaling, and pray nothing crashes. Kubegentic brings AI agents into the Kubernetes ecosystem so they behave like any other workload:
+Running AI agents in production today requires wiring together infrastructure, scaling, and monitoring manually. Kubegentic brings AI agents into the Kubernetes ecosystem so they behave like any other workload:
 
-1. **Declare** your agent in YAML
-2. **The operator** handles provisioning, networking, and RBAC
-3. **Platform tooling** (Prometheus, Grafana, KEDA) works out of the box
-
-No custom orchestrators. No snowflake deployments. Just Kubernetes.
+1. Declare your agent in YAML
+2. The operator handles provisioning, networking, and RBAC
+3. Platform tooling (Prometheus, Grafana, KEDA) works out of the box
 
 ---
 
@@ -49,17 +47,15 @@ apiVersion: agent.kubegentic.dev/v1
 kind: Agent
 metadata:
   name: devops-agent
+  namespace: default
 spec:
-  model: llama3.2
-  provider: ollama
+  model: deepseek-v4-flash
+  provider: deepseek
   systemPrompt: |
-    You are a senior DevOps engineer.
-  tools:
-    - name: kubectl
-      toolRef: kubectl-tool
-  autoscaling:
-    minReplicas: 1
-    maxReplicas: 5
+    You are a senior DevOps engineer. Be concise and security-focused.
+  apiKeySecretRef:
+    name: deepseek-credentials
+    key: api-key
 ```
 
 Apply it and watch it reconcile:
@@ -123,7 +119,7 @@ kubegentic/
 
 ## Contributing
 
-Contributions are welcome and appreciated.
+Contributions are welcome.
 
 ```bash
 git clone https://github.com/ahmedharabi/kubegentic.git
@@ -143,4 +139,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
 
 ## License
 
-Apache 2.0 &mdash; see [LICENSE](./LICENSE).
+Apache 2.0 -- see [LICENSE](./LICENSE).
