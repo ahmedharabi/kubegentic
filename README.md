@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="../docs/logo.png" alt="Kubegentic Logo" width="200">
+
 # Kubegentic
 
 **Kubernetes-native AI Agent Runtime Platform**
