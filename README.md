@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="../docs/logo.png" alt="Kubegentic Logo" width="200">
+<img src="logo.png" alt="Kubegentic Logo" width="200">
 
 # Kubegentic
 
