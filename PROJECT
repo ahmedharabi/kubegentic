@@ -17,4 +17,13 @@ resources:
   kind: Agent
   path: github.com/ahmedharabi/kubegentic/api/v1
   version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: kubegentic.dev
+  group: agent
+  kind: Tool
+  path: github.com/ahmedharabi/kubegentic/api/v1
+  version: v1
 version: "3"

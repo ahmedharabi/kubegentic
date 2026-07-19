@@ -1,0 +1,12 @@
+apiVersion: agent.kubegentic.dev/v1
+kind: Tool
+metadata:
+  labels:
+    app.kubernetes.io/name: tool
+    app.kubernetes.io/instance: tool-sample
+    app.kubernetes.io/part-of: kubegentic
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: kubegentic
+  name: tool-sample
+spec:
+  # TODO(user): Add fields here
