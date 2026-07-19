@@ -1,0 +1,27 @@
+# permissions for end users to view tools.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: tool-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: kubegentic
+    app.kubernetes.io/part-of: kubegentic
+    app.kubernetes.io/managed-by: kustomize
+  name: tool-viewer-role
+rules:
+- apiGroups:
+  - agent.kubegentic.dev
+  resources:
+  - tools
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - agent.kubegentic.dev
+  resources:
+  - tools/status
+  verbs:
+  - get
