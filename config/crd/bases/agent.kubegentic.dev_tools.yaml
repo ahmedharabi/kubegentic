@@ -1,0 +1,100 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.14.0
+  name: tools.agent.kubegentic.dev
+spec:
+  group: agent.kubegentic.dev
+  names:
+    kind: Tool
+    listKind: ToolList
+    plural: tools
+    singular: tool
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: Tool is the Schema for the tools API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              access:
+                default: none
+                description: |-
+                  Cluster access level. The operator generates a namespace-scoped SA + Role +
+                  RoleBinding to match:
+                    none      -> no ServiceAccount/RBAC created
+                    read      -> get/list/watch on all resources in the namespace
+                    readwrite -> all verbs on all resources in the namespace
+                enum:
+                - none
+                - read
+                - readwrite
+                type: string
+              image:
+                description: Container image for the tool service.
+                type: string
+              podSpecOverride:
+                description: |-
+                  Escape hatch: a partial PodSpec strategic-merged over the operator-generated
+                  pod. Use for anything the curated fields do not cover. Free-form -- the API
+                  server does not validate its internal structure.
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              port:
+                default: 8000
+                description: Port the tool's HTTP server listens on.
+                format: int32
+                type: integer
+              storage:
+                description: Optional ephemeral scratch storage.
+                properties:
+                  enabled:
+                    type: boolean
+                  mountPath:
+                    default: /data
+                    description: Where to mount the scratch volume in the container.
+                    type: string
+                  sizeLimit:
+                    description: Optional cap on the emptyDir size, e.g. "1Gi".
+                    type: string
+                type: object
+            required:
+            - image
+            type: object
+          status:
+            description: ToolStatus defines the observed state of Tool
+            properties:
+              endpoint:
+                description: In-cluster address other components use to reach the
+                  tool. Written by the controller.
+                type: string
+              phase:
+                description: 'Phase: Pending | Ready | Failed. Written by the controller.'
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
