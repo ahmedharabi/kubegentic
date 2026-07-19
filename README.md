@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="logo.png" alt="Kubegentic Logo" width="250">
+<img src="logo.png" alt="Kubegentic Logo" width="200">
 
 # Kubegentic
 
@@ -46,24 +46,7 @@ Running AI agents in production today requires wiring together infrastructure, s
 
 Define an agent in a manifest. Agents can reference **Tools** (sidecar services that provide capabilities like web search, code execution, etc.):
 
-```yaml
-apiVersion: agent.kubegentic.dev/v1
-kind: Agent
-metadata:
-  name: devops-agent
-  namespace: default
-spec:
-  model: deepseek-v4-flash
-  provider: deepseek
-  systemPrompt: |
-    You are a senior DevOps engineer. Be concise and security-focused.
-  tools:
-    - kubectl-executor
-    - web-search
-  apiKeySecretRef:
-    name: deepseek-credentials
-    key: api-key
-```
+<img src="ss.png" alt="Agent YAML" width="600"/>
 
 The operator resolves each referenced Tool, waits for it to be ready, and injects its endpoint as an environment variable (`TOOL_<NAME>_ENDPOINT`) into the agent's Deployment.
 
