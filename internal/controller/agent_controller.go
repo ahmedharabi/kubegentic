@@ -4,6 +4,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -92,6 +93,27 @@ func (r *AgentReconciler) reconcileDeployment(ctx context.Context, agent *agentv
 		{Name: "AGENT_PROVIDER", Value: agent.Spec.Provider},
 		{Name: "AGENT_SYSTEM_PROMPT", Value: agent.Spec.SystemPrompt},
 		{Name: "OLLAMA_BASE_URL", Value: "http://host.minikube.internal:11434"},
+	}
+	if len(agent.Spec.Tools) > 0 {
+		env = append(env, corev1.EnvVar{
+			Name:  "TOOL_LIST",
+			Value: strings.Join(agent.Spec.Tools, ","),
+		})
+	}
+	for _, name := range agent.Spec.Tools {
+		var tool agentv1.Tool
+		if err := r.Get(ctx, client.ObjectKey{Name: name, Namespace: agent.Namespace}, &tool); err != nil {
+			// tool doesn't exist -> fail-fast: don't wire the agent to a missing tool
+			return fmt.Errorf("agent references tool %q which was not found: %w", name, err)
+		}
+		if tool.Status.Endpoint == "" {
+			// tool exists but isn't Ready yet -> requeue and try again shortly
+			return fmt.Errorf("tool %q not ready yet", name)
+		}
+		env = append(env, corev1.EnvVar{
+			Name:  "TOOL_" + strings.ToUpper(name) + "_ENDPOINT",
+			Value: tool.Status.Endpoint,
+		})
 	}
 
 	if agent.Spec.APIKeySecretRef != nil {
