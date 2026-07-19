@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="logo.png" alt="Kubegentic Logo" width="200">
+<img src="logo.png" alt="Kubegentic Logo" width="250">
 
 # Kubegentic
 
@@ -14,17 +14,17 @@ Treat AI agents as first-class Kubernetes workloads -- declarative, self-healing
 
 </div>
 
-Kubegentic lets you define and manage AI agents as Kubernetes custom resources. The operator watches Agent CRDs and reconciles the desired state, creating Deployments, Services, RBAC, and HPA automatically.
+Kubegentic lets you define and manage AI agents and their tools as Kubernetes custom resources. The operator watches Agent and Tool CRDs and reconciles the desired state — creating Deployments, injecting tool endpoints, and managing RBAC automatically.
 
-> **Status:** Early development. The Kubernetes operator with Agent CRD reconciliation is implemented. Python agent runtime, tool servers, and Helm chart are on the roadmap.
+> **Status:** Early development. Agent and Tool CRD reconciliation is implemented. Python agent runtime and Helm chart are on the roadmap.
 
 ---
 
 ## Features
 
-- **Declarative YAML** : Define agents, tools, and memory in standard Kubernetes manifests
+- **Declarative YAML** : Define agents and tools in standard Kubernetes manifests
 - **Operator Pattern** : Self-healing reconciliation loop built with Kubebuilder
-- **Pluggable Interfaces** : ATI (tools), AMI (memory), ALI (LLMs), AWI (agents)
+- **Tool CRD** : Sidecar-like tool services with automatic endpoint injection into agents
 - **Autoscaling** : Event-driven scaling via KEDA and HPA
 - **Observable** : OpenTelemetry traces, Prometheus metrics, structured logging
 
@@ -42,7 +42,9 @@ Running AI agents in production today requires wiring together infrastructure, s
 
 ## How It Works
 
-Define an agent in a manifest:
+### Agents
+
+Define an agent in a manifest. Agents can reference **Tools** (sidecar services that provide capabilities like web search, code execution, etc.):
 
 ```yaml
 apiVersion: agent.kubegentic.dev/v1
@@ -55,19 +57,49 @@ spec:
   provider: deepseek
   systemPrompt: |
     You are a senior DevOps engineer. Be concise and security-focused.
+  tools:
+    - kubectl-executor
+    - web-search
   apiKeySecretRef:
     name: deepseek-credentials
     key: api-key
 ```
 
-Apply it and watch it reconcile:
+The operator resolves each referenced Tool, waits for it to be ready, and injects its endpoint as an environment variable (`TOOL_<NAME>_ENDPOINT`) into the agent's Deployment.
+
+Apply it:
 
 ```bash
 kubectl apply -f agent.yaml
 kubectl get agents
 ```
 
-The operator creates the underlying Kubernetes resources (Deployments, Services, RBAC) and keeps them in sync with the declared state.
+### Tools
+
+Tools are sidecar-like services that agents consume at runtime. Define one like this:
+
+```yaml
+apiVersion: agent.kubegentic.dev/v1
+kind: Tool
+metadata:
+  name: kubectl-executor
+  namespace: default
+spec:
+  image: kubegentic/tool-kubectl:latest
+  port: 8080
+  storage:
+    size: 1Gi
+    mountPath: /workspace
+```
+
+Apply it:
+
+```bash
+kubectl apply -f tool.yaml
+kubectl get tools
+```
+
+The operator creates a Deployment and Service for the tool, and exposes the endpoint in `.status.endpoint` for agents to consume.
 
 ---
 
@@ -107,10 +139,19 @@ kubectl get agents
 
 ```
 kubegentic/
-├── api/v1/                  # CRD type definitions
+├── api/v1/                  # CRD type definitions (Agent, Tool, + deepcopy)
+│   ├── agent_types.go
+│   ├── tool_types.go
+│   └── zz_generated.deepcopy.go
 ├── cmd/main.go              # Controller manager entry point
 ├── config/                  # Kustomize manifests (CRD, RBAC, manager deployment)
+│   ├── crd/
+│   ├── rbac/
+│   └── samples/
 ├── internal/controller/     # Reconciliation loop logic
+│   ├── agent_controller.go
+│   ├── tool_controller.go
+│   └── tool_controller_test.go
 ├── test/                    # End-to-end tests
 ├── Dockerfile               # Container image
 ├── Makefile                 # Build, test, deploy targets
