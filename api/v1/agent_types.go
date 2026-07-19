@@ -21,6 +21,8 @@ type AgentSpec struct {
 	// +optional
 	Replicas *int32 `json:"replicas,omitempty"`
 	// +optional
+	Tools []string `json:"tools,omitempty"`
+	// +optional
 	APIKeySecretRef *corev1.SecretKeySelector `json:"apiKeySecretRef,omitempty"`
 }
 

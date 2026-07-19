@@ -93,6 +93,10 @@ spec:
                 description: SystemPrompt is the system-level instruction given to
                   the agent
                 type: string
+              tools:
+                items:
+                  type: string
+                type: array
             required:
             - model
             - provider
